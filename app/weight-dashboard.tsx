@@ -16,7 +16,11 @@ const shortTime = new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-di
 const fullDate = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' });
 const number = new Intl.NumberFormat('en', { maximumFractionDigits: 2 });
 
-export default function WeightDashboard({ entries, unavailable }: { entries: WeightEntry[]; unavailable: boolean }) {
+export default function WeightDashboard({ entries, unavailable, showHistory }: {
+  entries: WeightEntry[];
+  unavailable: boolean;
+  showHistory: boolean;
+}) {
   const [range, setRange] = useState<keyof typeof ranges>('All');
   const [units, setUnits] = useState<WeightUnit>('kg');
   const [page, setPage] = useState(0);
@@ -74,7 +78,7 @@ export default function WeightDashboard({ entries, unavailable }: { entries: Wei
           </div>
         ) : <Empty icon={Activity} unavailable={unavailable} title={entries.length ? 'No entries in this range' : 'No weight entries yet'} detail={entries.length ? 'Choose a wider date range to see more measurements.' : 'Measurements added through MCP will appear here.'} />}
       </section>
-      <section className="panel history" id="history" aria-labelledby="history-heading">
+      {showHistory && <section className="panel history" id="history" aria-labelledby="history-heading">
         <div className="section-header">
           <div><h2 id="history-heading">Measurement history</h2><p>Latest first · times in UTC</p></div>
           <span className="entry-count">{unavailable ? '—' : filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}</span>
@@ -89,7 +93,7 @@ export default function WeightDashboard({ entries, unavailable }: { entries: Wei
           </table>
         </div>
         {pageCount > 1 && <div className="pagination"><button disabled={activePage === 0} onClick={() => setPage(activePage - 1)}>Previous</button><span>Page {activePage + 1} of {pageCount}</span><button disabled={activePage === pageCount - 1} onClick={() => setPage(activePage + 1)}>Next</button></div>}
-      </section>
+      </section>}
     </>
   );
 }

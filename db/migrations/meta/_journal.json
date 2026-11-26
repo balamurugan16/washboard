@@ -8,6 +8,13 @@
       "when": 1795643162759,
       "tag": "0000_weight",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795659571783,
+      "tag": "0001_habits",
+      "breakpoints": true
     }
   ]
 }

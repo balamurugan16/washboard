@@ -1,6 +1,6 @@
 # Washboard
 
-A read-only personal health dashboard built with Next.js, TypeScript, Drizzle ORM, and PostgreSQL. The weight dashboard shows a trend chart, summary metrics, and a paginated measurement history. Entries can be managed through MCP.
+A read-only personal health dashboard built with Next.js, TypeScript, Drizzle ORM, and PostgreSQL. The weight dashboard shows a trend chart, summary metrics, and a paginated measurement history. The habit dashboard shows daily completions across named tracking periods. Manage measurements, habit periods, and daily check-ins through MCP.
 
 ## Run locally
 
@@ -16,7 +16,7 @@ npm run db:migrate
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The dashboard displays stored measurements and starts empty on a fresh database. It serves personal data to anyone who can reach it, so keep it local or put the dashboard behind your host's access controls.
+Open [localhost:3000](http://localhost:3000). The dashboard displays stored measurements and habit check-ins and starts empty on a fresh database. It serves personal data to anyone who can reach it, so keep it local or put the dashboard behind your host's access controls.
 
 ## Deploy to Cloudflare Workers
 
@@ -70,7 +70,7 @@ Commit the generated SQL and metadata in `db/migrations` together. Drizzle Kit r
 
 ## MCP
 
-Use Streamable HTTP at `http://localhost:3000/api/mcp` for local development or at the deployed HTTPS `/api/mcp` URL. Anyone who can reach the endpoint can read and modify weight entries.
+Use Streamable HTTP at `http://localhost:3000/api/mcp` for local development or at the deployed HTTPS `/api/mcp` URL. Anyone who can reach the endpoint can read and modify measurements and habit tracking data.
 
 | Tool | Input |
 | --- | --- |
@@ -80,6 +80,30 @@ Use Streamable HTTP at `http://localhost:3000/api/mcp` for local development or 
 | `edit_weight` | `id` and fields to update. Include `weight` when changing `units`. |
 
 Use ISO 8601 timestamps with a time zone, such as `2026-11-24T08:00:00+05:30`.
+
+### Habit tracking
+
+| Tool | Input |
+| --- | --- |
+| `create_habit_period` | `name`, `startDate`, either `months` or `endDate`, and an ordered list of 1–10 distinct `habits`. |
+| `list_habit_periods` | No input. Returns period IDs and their ordered habits. |
+| `set_habit_completion` | `periodId`, `date`, `habitIndex` (1-based), and `completed` (`true` to record, `false` to clear). |
+| `list_habit_check_ins` | `periodId`, `from`, and `to`. Returns completed habits within the inclusive date range. |
+
+Use date-only values in `YYYY-MM-DD` format. A period with a duration ends the day before its calendar-month anniversary. If the target month is shorter, the anniversary falls on the last day of that month. An explicit `endDate` is inclusive.
+
+For example, call `create_habit_period` with:
+
+```json
+{
+  "name": "Winter Arc",
+  "startDate": "2026-12-01",
+  "months": 3,
+  "habits": ["Walk 30 minutes", "Read 10 pages", "Stretch"]
+}
+```
+
+Open the **Habits** tab to switch between periods and review daily completions.
 
 ## Design
 

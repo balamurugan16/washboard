@@ -1,54 +1,86 @@
-import { Activity, ArrowUpRight, CalendarDays, ChartNoAxesCombined, History, Scale } from 'lucide-react';
+import { Apple, ArrowUpRight, Check } from 'lucide-react';
+import Link from 'next/link';
 import { getErrorCode } from '@/lib/db';
-import { listWeights, type WeightEntry } from '@/lib/weight';
-import WeightDashboard from './weight-dashboard';
+import { listHabitCheckIns, listHabitPeriods } from '@/lib/habits';
+import DashboardNav from './dashboard-nav';
+import WeightOverview from './weight-overview';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Page() {
-  let entries: WeightEntry[] = [];
-  let unavailable = false;
+const dateLabel = new Intl.DateTimeFormat('en', { dateStyle: 'full', timeZone: 'UTC' });
+
+async function TodayHabits({ date }: { date: string }) {
+  let content;
 
   try {
-    entries = await listWeights();
+    const periods = await listHabitPeriods();
+    const period = periods.find(({ startDate, endDate }) => startDate <= date && date <= endDate);
+
+    if (period) {
+      const checkIns = await listHabitCheckIns(period.id, date, date);
+      const completed = new Set(checkIns.map(({ habitIndex }) => habitIndex));
+      const habits = period.habits.map((name, index) => ({ name, done: completed.has(index + 1) }));
+      const doneCount = habits.filter(({ done }) => done).length;
+
+      content = (
+        <>
+          <div className="today-progress">
+            <span><strong>{doneCount} / {habits.length}</strong> completed</span>
+            <progress value={doneCount} max={habits.length} aria-label="Today's habit completion" />
+          </div>
+          <ul className="today-habits">
+            {habits.map(({ name, done }) => (
+              <li key={name}>
+                <span className={done ? 'habit-done' : 'habit-pending'} aria-hidden="true">
+                  {done ? <Check size={17} /> : '–'}
+                </span>
+                <span>{name}</span>
+                <small>{done ? 'Done' : 'Pending'}</small>
+              </li>
+            ))}
+          </ul>
+        </>
+      );
+    } else {
+      content = <p>No habits scheduled for today.</p>;
+    }
   } catch (error) {
-    console.error('Could not load weight history.', getErrorCode(error) ?? 'database unavailable');
-    unavailable = true;
+    console.error('Could not load today’s habits.', getErrorCode(error) ?? 'database unavailable');
+    content = <p role="status">Today’s habits are temporarily unavailable.</p>;
   }
 
   return (
-    <div className="shell">
-      <header className="masthead">
-        <a className="brand" href="/" aria-label="Washboard home">
-          <span className="brand-mark"><Activity size={23} strokeWidth={3} /></span>
-          Washboard<span className="brand-dot">.</span>
-        </a>
-        <span className="masthead-label"><CalendarDays size={16} /> Personal health log</span>
-      </header>
-      <div className="workspace">
-        <aside className="rail">
-          <nav aria-label="Weight dashboard">
-            <span className="rail-label">Dashboard</span>
-            <a className="rail-current" href="#overview"><Scale size={19} /> Weight <ArrowUpRight size={16} /></a>
-            <a href="#trend"><ChartNoAxesCombined size={18} /> Trend</a>
-            <a href="#history"><History size={18} /> History</a>
-          </nav>
-        </aside>
-        <main id="overview">
-          <section className="hero panel">
-            <div>
-              <p className="eyebrow">Body metrics</p>
-              <h1>Weight tracker<span>.</span></h1>
-              <p>See how your weight changes over time.</p>
-            </div>
-            <div className="hero-art" aria-hidden="true">
-              <div className="hero-card"><Scale strokeWidth={2.4} /></div>
-              <span className="hero-spark">✦</span>
-            </div>
-          </section>
-          <WeightDashboard entries={entries} unavailable={unavailable} />
-        </main>
+    <section className="panel history today" aria-labelledby="today-heading">
+      <div className="section-header">
+        <h2 id="today-heading">Today’s habits</h2>
+        <Link className="dashboard-link" href="/habits">Habit history <ArrowUpRight size={14} aria-hidden="true" /></Link>
       </div>
+      {content}
+    </section>
+  );
+}
+
+export default function HomePage() {
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+
+  return (
+    <div className="workspace">
+      <DashboardNav current="/" />
+      <main className="dashboard-home">
+        <section className="hero panel">
+          <div>
+            <h1>Nutrition tracker<span>.</span></h1>
+            <p><time dateTime={today}>{dateLabel.format(now)}</time> · UTC</p>
+          </div>
+          <div className="hero-art" aria-hidden="true">
+            <div className="hero-card"><Apple strokeWidth={2.4} /></div>
+            <span className="hero-spark">✦</span>
+          </div>
+        </section>
+        <WeightOverview showHistory={false} />
+        <TodayHabits date={today} />
+      </main>
     </div>
   );
 }
