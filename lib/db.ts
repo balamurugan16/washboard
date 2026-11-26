@@ -1,7 +1,10 @@
 import pg from 'pg';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { drizzle } from 'drizzle-orm/node-postgres';
 
-const globalDatabase = globalThis as typeof globalThis & { washboardPool?: pg.Pool };
+interface CloudflareBindings {
+  HYPERDRIVE?: { connectionString: string };
+}
 
 export function getErrorCode(error: unknown): string | undefined {
   if (error instanceof Error && 'code' in error && typeof error.code === 'string') {
@@ -10,27 +13,33 @@ export function getErrorCode(error: unknown): string | undefined {
 }
 
 export function getPool() {
-  if (!process.env.DATABASE_URL) {
+  let connectionString: string | undefined;
+
+  try {
+    const env = getCloudflareContext().env as CloudflareBindings;
+    connectionString = env.HYPERDRIVE?.connectionString;
+  } catch {
+    // next dev and standalone Node.js use DATABASE_URL from .env.
+  }
+
+  connectionString ??= process.env.DATABASE_URL;
+  if (!connectionString) {
     throw new Error('DATABASE_URL is missing.');
   }
 
-  if (!globalDatabase.washboardPool) {
-    const pool = new pg.Pool({
-      connectionString: process.env.DATABASE_URL,
-      max: 5,
-      connectionTimeoutMillis: 10_000,
-    });
-    pool.on('error', (error) => {
-      console.error('An idle PostgreSQL connection failed.', getErrorCode(error) ?? 'connection error');
-    });
-    globalDatabase.washboardPool = pool;
-  }
+  const pool = new pg.Pool({
+    connectionString,
+    max: 1,
+    maxUses: 1,
+    connectionTimeoutMillis: 10_000,
+  });
+  pool.on('error', (error) => {
+    console.error('A PostgreSQL connection failed.', getErrorCode(error) ?? 'connection error');
+  });
 
-  return globalDatabase.washboardPool;
+  return pool;
 }
 
-let database: ReturnType<typeof drizzle> | undefined;
-
 export function getDb() {
-  return database ??= drizzle({ client: getPool() });
+  return drizzle({ client: getPool() });
 }

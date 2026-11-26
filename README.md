@@ -18,6 +18,41 @@ npm run dev
 
 Open [localhost:3000](http://localhost:3000). The dashboard displays stored measurements and starts empty on a fresh database. It serves personal data to anyone who can reach it, so keep it local or put the dashboard behind your host's access controls.
 
+## Deploy to Cloudflare Workers
+
+This app uses the OpenNext adapter for Next.js and Cloudflare Hyperdrive for PostgreSQL. The Cloudflare Worker must have a Hyperdrive binding named `HYPERDRIVE`; the app uses its connection string at runtime. Keep `DATABASE_URL` for local development and database migrations.
+
+1. Install the configured dependencies and authenticate with Cloudflare:
+
+   ```sh
+   npm install
+   npx wrangler login
+   ```
+
+2. In the Cloudflare dashboard, create a Hyperdrive configuration for the PostgreSQL database and copy its ID. Add it to `wrangler.jsonc`:
+
+   ```jsonc
+   "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "YOUR_HYPERDRIVE_ID" }]
+   ```
+
+   Use the production PostgreSQL connection string in the Hyperdrive setup. Do not commit it to this repository.
+
+3. Set the MCP bearer token as a Worker secret and apply pending database migrations from a trusted environment with `DATABASE_URL` configured:
+
+   ```sh
+   npx wrangler secret put MCP_TOKEN
+   npm run db:migrate
+   ```
+
+4. Build and preview, then deploy:
+
+   ```sh
+   npm run cf:preview
+   npm run cf:deploy
+   ```
+
+For local Next.js development, use `.env` as usual. For `wrangler dev`, copy `.dev.vars.example` to `.dev.vars` and set `MCP_TOKEN`. Set `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in your shell to the development PostgreSQL connection string; Wrangler uses it for local requests. Both `.dev.vars` and `.env` are ignored by Git. You can also use `wrangler dev --remote` to test against the configured Hyperdrive and database.
+
 ## PostgreSQL
 
 Drizzle queries use the typed schema in `db/schema.ts`. Update it alongside any SQL migration that changes the application schema.
