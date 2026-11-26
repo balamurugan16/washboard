@@ -9,7 +9,7 @@ npm ci
 test -f .env || cp .env.example .env
 ```
 
-Keep your existing `.env` if you already have one. Set `DATABASE_URL` to your PostgreSQL connection string and `MCP_TOKEN` to a long random secret. The app loads `.env` automatically. The MCP endpoint returns 503 until a token is configured.
+Keep your existing `.env` if you already have one. Set `DATABASE_URL` to your PostgreSQL connection string. The app loads `.env` automatically.
 
 ```sh
 npm run db:migrate
@@ -37,10 +37,9 @@ This app uses the OpenNext adapter for Next.js and Cloudflare Hyperdrive for Pos
 
    Use the production PostgreSQL connection string in the Hyperdrive setup. Do not commit it to this repository.
 
-3. Set the MCP bearer token as a Worker secret and apply pending database migrations from a trusted environment with `DATABASE_URL` configured:
+3. Apply pending database migrations from a trusted environment with `DATABASE_URL` configured:
 
    ```sh
-   npx wrangler secret put MCP_TOKEN
    npm run db:migrate
    ```
 
@@ -51,7 +50,7 @@ This app uses the OpenNext adapter for Next.js and Cloudflare Hyperdrive for Pos
    npm run cf:deploy
    ```
 
-For local Next.js development, use `.env` as usual. For `wrangler dev`, copy `.dev.vars.example` to `.dev.vars` and set `MCP_TOKEN`. Set `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in your shell to the development PostgreSQL connection string; Wrangler uses it for local requests. Both `.dev.vars` and `.env` are ignored by Git. You can also use `wrangler dev --remote` to test against the configured Hyperdrive and database.
+For local Next.js development, use `.env` as usual. For a local Worker preview, set `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in your shell to the development PostgreSQL connection string.
 
 ## PostgreSQL
 
@@ -71,7 +70,7 @@ Commit the generated SQL and metadata in `db/migrations` together. Drizzle Kit r
 
 ## MCP
 
-Use Streamable HTTP at `http://localhost:3000/api/mcp` with an `Authorization: Bearer <MCP_TOKEN>` header. Use HTTPS for a remote deployment. Configure the header in your MCP client.
+Use Streamable HTTP at `http://localhost:3000/api/mcp` for local development or at the deployed HTTPS `/api/mcp` URL. Anyone who can reach the endpoint can read and modify weight entries.
 
 | Tool | Input |
 | --- | --- |
