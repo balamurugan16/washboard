@@ -15,6 +15,13 @@
       "when": 1795659571783,
       "tag": "0001_habits",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795749557262,
+      "tag": "0002_time_entries",
+      "breakpoints": true
     }
   ]
 }

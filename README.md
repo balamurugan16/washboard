@@ -1,6 +1,6 @@
 # Washboard
 
-A read-only personal health dashboard built with Next.js, TypeScript, Drizzle ORM, and PostgreSQL. The weight dashboard shows a trend chart, summary metrics, and a paginated measurement history. The habit dashboard shows daily completions across named tracking periods. Manage measurements, habit periods, and daily check-ins through MCP.
+A read-only personal health dashboard built with Next.js, TypeScript, Drizzle ORM, and PostgreSQL. The weight dashboard shows a trend chart, summary metrics, and a paginated measurement history. The habit dashboard shows daily completions across named tracking periods. The home dashboard shows daily sleep totals from your time log. Manage measurements, habit periods, daily check-ins, and time entries through MCP.
 
 ## Run locally
 
@@ -70,7 +70,7 @@ Commit the generated SQL and metadata in `db/migrations` together. Drizzle Kit r
 
 ## MCP
 
-Use Streamable HTTP at `http://localhost:3000/api/mcp` for local development or at the deployed HTTPS `/api/mcp` URL. Anyone who can reach the endpoint can read and modify measurements and habit tracking data.
+Use Streamable HTTP at `http://localhost:3000/api/mcp` for local development or at the deployed HTTPS `/api/mcp` URL. Anyone who can reach the endpoint can read and modify measurements, habits, and time entries.
 
 | Tool | Input |
 | --- | --- |
@@ -107,6 +107,29 @@ For example, call `create_habit_period` with:
 
 Open the **Habits** tab to switch between periods and review daily completions.
 
+### Time tracking
+
+| Tool | Input |
+| --- | --- |
+| `add_time_entry` | `startAt`, `endAt`, `activity`, and `tag`. Supply time zone offsets in both timestamps. |
+| `list_time_entries` | Optional `limit` and `offset`. Results are newest first by start time. |
+| `edit_time_entry` | `id` and at least one of `startAt`, `endAt`, `activity`, or `tag`. |
+
+For example, call `add_time_entry` with:
+
+```json
+{
+  "startAt": "2026-11-27T01:30:00+05:30",
+  "endAt": "2026-11-27T08:30:00+05:30",
+  "activity": "Sleep",
+  "tag": "Sleep"
+}
+```
+
+The home dashboard totals entries tagged `Sleep` (case-insensitive) for the latest 14 calendar days in Asia/Kolkata. Intervals that cross midnight contribute to both dates, and overlapping sleep intervals count once. Daily totals use PostgreSQL 14 or later.
+
 ## Design
+
+When adding support for creating records, include a way to edit them.
 
 Shared CSS tokens in `app/globals.css` define the cream canvas, saturated accents, dark borders and offset shadows. Future dashboard sections can reuse the panel, section heading, and metric card styles.

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getErrorCode } from '@/lib/db';
 import { listHabitCheckIns, listHabitPeriods } from '@/lib/habits';
 import DashboardNav from './dashboard-nav';
+import SleepOverview from './sleep-overview';
 import WeightOverview from './weight-overview';
 
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,7 @@ export default function HomePage() {
         </section>
         <WeightOverview showHistory={false} />
         <TodayHabits date={today} />
+        <SleepOverview now={now} />
       </main>
     </div>
   );

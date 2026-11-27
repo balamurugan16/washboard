@@ -32,3 +32,16 @@ export const habitCheckInTable = pgTable('habit_check_in', {
   primaryKey({ columns: [table.periodId, table.date, table.habitIndex] }),
   check('habit_check_in_index_check', sql`${table.habitIndex} BETWEEN 1 AND 10`),
 ]);
+
+export const timeEntryTable = pgTable('time_entry', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  startAt: timestamp('start_at', { withTimezone: true }).notNull(),
+  endAt: timestamp('end_at', { withTimezone: true }).notNull(),
+  activity: text().notNull(),
+  tag: text().notNull(),
+}, (table) => [
+  check('time_entry_duration_check', sql`${table.startAt} < ${table.endAt}`),
+  check('time_entry_activity_check', sql`btrim(${table.activity}) <> ''`),
+  check('time_entry_tag_check', sql`btrim(${table.tag}) <> ''`),
+  index('time_entry_start_at_idx').on(table.startAt.desc(), table.id.desc()),
+]);
