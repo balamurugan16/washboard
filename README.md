@@ -87,6 +87,8 @@ Use ISO 8601 timestamps with a time zone, such as `2026-11-24T08:00:00+05:30`.
 | --- | --- |
 | `create_habit_period` | `name`, `startDate`, either `months` or `endDate`, and an ordered list of 1–10 distinct `habits`. |
 | `list_habit_periods` | No input. Returns period IDs and their ordered habits. |
+| `rename_habit_period` | `periodId` and `name`. Renames an existing period. |
+| `edit_future_habits` | `periodId` and an ordered list of 1–10 distinct `habits`. Changes start on the first day of a future period, or tomorrow (UTC) for an active period. For an active period, use the returned continuation ID for future check-ins. Clear any completed check-ins on affected dates before editing. |
 | `set_habit_completion` | `periodId`, `date`, `habitIndex` (1-based), and `completed` (`true` to record, `false` to clear). |
 | `list_habit_check_ins` | `periodId`, `from`, and `to`. Returns completed habits within the inclusive date range. |
 
