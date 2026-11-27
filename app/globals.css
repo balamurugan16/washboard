@@ -84,7 +84,7 @@ td:nth-child(2) { font-weight: 800; font-variant-numeric: tabular-nums; }
   .masthead-label svg { display: none; }
   .workspace { grid-template-columns: minmax(0, 1fr); padding: 12px 14px 28px; }
   .rail { position: static; padding: 5px; }
-  .rail nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+  .rail nav { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
   .rail-label, .rail-current svg:last-child:not(:only-of-type) { display: none; }
   .rail a { justify-content: center; padding: 5px; min-height: 35px; font-size: 13px; }
   .hero { min-height: 150px; gap: 7px; padding: 16px; }
@@ -124,3 +124,25 @@ td:nth-child(2) { font-weight: 800; font-variant-numeric: tabular-nums; }
   .dashboard-home { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; }
   .dashboard-home > .hero, .dashboard-home > .metrics, .dashboard-home > .notice { grid-column: 1 / -1; }
 }
+
+.audit-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.audit-controls form { display: flex; gap: 6px; align-items: center; }
+.audit-controls a, .audit-controls button, .audit-edit button { border: 1px solid var(--ink); border-radius: 5px; padding: 6px 9px; background: #fff9eb; color: var(--ink); font-size: 13px; font-weight: 800; }
+.audit-controls a[aria-current] { background: var(--ink); color: var(--paper); }
+.audit-scroll { margin-top: 14px; overflow-x: auto; }
+.audit-calendar { display: grid; border: 1px solid #c9c2ad; border-radius: 6px; }
+.audit-week { grid-template-columns: repeat(7, minmax(155px, 1fr)); min-width: 1085px; }
+.audit-day { min-width: 0; background: #fff9eb; }
+.audit-day + .audit-day { border-left: 1px solid #c9c2ad; }
+.audit-day h3 { margin: 0; padding: 10px; background: #e9e1cd; font-size: 14px; }
+.audit-day h3 a[aria-current] { text-decoration: underline; text-decoration-thickness: 2px; }
+.audit-day > p { margin: 12px 10px; font-size: 13px; }
+.audit-day ul { list-style: none; margin: 0; padding: 8px; display: grid; gap: 8px; }
+.audit-entry { display: grid; justify-items: start; gap: 5px; padding: 8px; border: 1px solid #c9c2ad; border-left: 4px solid var(--blue); border-radius: 5px; background: var(--paper); overflow-wrap: anywhere; }
+.audit-entry .entry-count { white-space: normal; }
+.audit-edit { width: 100%; max-width: 320px; font-size: 13px; }
+.audit-edit summary { width: max-content; cursor: pointer; font-weight: 800; }
+.audit-edit form, .audit-edit label { display: grid; gap: 5px; }
+.audit-edit fieldset { display: grid; gap: 5px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.audit-edit form { margin-top: 8px; }
+.audit-edit input, .audit-controls input { min-width: 0; max-width: 100%; color: var(--ink); font: inherit; }

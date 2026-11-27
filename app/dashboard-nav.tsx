@@ -1,10 +1,11 @@
-import { House, ListChecks, Scale } from 'lucide-react';
+import { CalendarDays, House, ListChecks, Scale } from 'lucide-react';
 import Link from 'next/link';
 
 const pages = [
   { href: '/', label: 'Home', icon: House },
   { href: '/habits', label: 'Habits', icon: ListChecks },
   { href: '/weight', label: 'Weight', icon: Scale },
+  { href: '/time-audit', label: 'Time Audit', icon: CalendarDays },
 ] as const;
 
 export default function DashboardNav({ current }: { current: typeof pages[number]['href'] }) {

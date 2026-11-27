@@ -1,4 +1,4 @@
-import { desc, eq, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, lt, sql } from 'drizzle-orm';
 import { timeEntryTable } from '@/db/schema';
 import { getDb } from './db';
 
@@ -19,6 +19,15 @@ export function listTimeEntries(limit: number, offset: number) {
   return getDb().select().from(timeEntryTable)
     .orderBy(desc(timeEntryTable.startAt), desc(timeEntryTable.id))
     .limit(limit).offset(offset);
+}
+
+export function listTimeEntriesInRange(from: string, to: string) {
+  return getDb().select().from(timeEntryTable)
+    .where(and(
+      lt(timeEntryTable.startAt, sql`${to}::date::timestamp AT TIME ZONE 'Asia/Kolkata'`),
+      gt(timeEntryTable.endAt, sql`${from}::date::timestamp AT TIME ZONE 'Asia/Kolkata'`),
+    ))
+    .orderBy(asc(timeEntryTable.startAt), asc(timeEntryTable.id));
 }
 
 export async function editTimeEntry(id: number, { startAt, endAt, activity, tag }: Partial<TimeEntryInput>) {
@@ -64,6 +73,37 @@ export async function listDailySleep(now: Date = new Date()) {
       ), 0)::double precision AS hours
     FROM bounds
     ORDER BY bounds.date
+  `);
+  return result.rows;
+}
+
+export async function listTagTotals(date: string, weekStart: string) {
+  const result = await getDb().execute<{ tag: string; day: number; week: number; month: number; overall: number }>(sql`
+    WITH dates AS (
+      SELECT ${date}::date AS day, ${weekStart}::date AS week,
+        date_trunc('month', ${date}::date::timestamp) AS month
+    ), bounds AS (
+      SELECT
+        tstzrange(day::timestamp AT TIME ZONE 'Asia/Kolkata', (day + 1)::timestamp AT TIME ZONE 'Asia/Kolkata') AS day,
+        tstzrange(week::timestamp AT TIME ZONE 'Asia/Kolkata', (week + 7)::timestamp AT TIME ZONE 'Asia/Kolkata') AS week,
+        tstzrange(month AT TIME ZONE 'Asia/Kolkata', (month + interval '1 month') AT TIME ZONE 'Asia/Kolkata') AS month
+      FROM dates
+    ), tags AS (
+      SELECT min(tag) AS tag, range_agg(tstzrange(start_at, end_at)) AS periods
+      FROM ${timeEntryTable}
+      GROUP BY lower(tag)
+    )
+    SELECT tag, totals.*
+    FROM tags CROSS JOIN bounds
+    CROSS JOIN LATERAL (
+      SELECT
+        coalesce(sum(extract(epoch FROM upper(period * day) - lower(period * day))), 0)::double precision / 3600 AS day,
+        coalesce(sum(extract(epoch FROM upper(period * week) - lower(period * week))), 0)::double precision / 3600 AS week,
+        coalesce(sum(extract(epoch FROM upper(period * month) - lower(period * month))), 0)::double precision / 3600 AS month,
+        sum(extract(epoch FROM upper(period) - lower(period)))::double precision / 3600 AS overall
+      FROM unnest(tags.periods) AS items(period)
+    ) AS totals
+    ORDER BY lower(tag)
   `);
   return result.rows;
 }

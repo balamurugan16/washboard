@@ -128,6 +128,8 @@ For example, call `add_time_entry` with:
 
 The home dashboard totals entries tagged `Sleep` (case-insensitive) for the latest 14 calendar days in Asia/Kolkata. Intervals that cross midnight contribute to both dates, and overlapping sleep intervals count once. Daily totals use PostgreSQL 14 or later.
 
+Open **Time Audit** to browse and edit entries in day and week views. The tag summary shows totals for the selected date, its Monday-start week, its calendar month, and all logged time. Tags are grouped case-insensitively, with overlapping time counted once per tag.
+
 ## Design
 
 When adding support for creating records, include a way to edit them.
