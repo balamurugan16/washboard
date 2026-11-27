@@ -112,6 +112,7 @@ Open the **Habits** tab to switch between periods and review daily completions.
 | Tool | Input |
 | --- | --- |
 | `add_time_entry` | `startAt`, `endAt`, `activity`, and `tag`. Supply time zone offsets in both timestamps. |
+| `add_time_entries` | `entries`, an array of 1–500 activities with the same fields as `add_time_entry`. All entries are saved together and returned with IDs for editing. |
 | `list_time_entries` | Optional `limit` and `offset`. Results are newest first by start time. |
 | `edit_time_entry` | `id` and at least one of `startAt`, `endAt`, `activity`, or `tag`. |
 
@@ -128,10 +129,10 @@ For example, call `add_time_entry` with:
 
 The home dashboard totals entries tagged `Sleep` (case-insensitive) for the latest 14 calendar days in Asia/Kolkata. Intervals that cross midnight contribute to both dates, and overlapping sleep intervals count once. Daily totals use PostgreSQL 14 or later.
 
-Open **Time Audit** to browse and edit entries in day and week views. The tag summary shows totals for the selected date, its Monday-start week, its calendar month, and all logged time. Tags are grouped case-insensitively, with overlapping time counted once per tag.
+Open **Time Audit** to browse entries in day and week views. Use MCP to add or edit entries. The tag summary shows totals for the selected date, its Monday-start week, its calendar month, and all logged time. Tags are grouped case-insensitively, with overlapping time counted once per tag.
 
 ## Design
 
-When adding support for creating records, include a way to edit them.
+Keep the web dashboard read-only. When adding MCP support for creating records, include a way to edit them through MCP.
 
 Shared CSS tokens in `app/globals.css` define the cream canvas, saturated accents, dark borders and offset shadows. Future dashboard sections can reuse the panel, section heading, and metric card styles.

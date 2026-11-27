@@ -5,13 +5,17 @@ import { getDb } from './db';
 type TimeEntryInput = { startAt: string; endAt: string; activity: string; tag: string };
 export type SleepDay = { date: string; hours: number };
 
-export async function addTimeEntry({ startAt, endAt, activity, tag }: TimeEntryInput) {
-  const [entry] = await getDb().insert(timeEntryTable).values({
+export function addTimeEntries(entries: TimeEntryInput[]) {
+  return getDb().insert(timeEntryTable).values(entries.map(({ startAt, endAt, activity, tag }) => ({
     startAt: sql`${startAt}::timestamptz`,
     endAt: sql`${endAt}::timestamptz`,
     activity,
     tag,
-  }).returning();
+  }))).returning();
+}
+
+export async function addTimeEntry(input: TimeEntryInput) {
+  const [entry] = await addTimeEntries([input]);
   return entry;
 }
 

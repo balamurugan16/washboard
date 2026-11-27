@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { getErrorCode } from '@/lib/db';
-import { addTimeEntry, editTimeEntry, listTimeEntries } from '@/lib/time';
+import { addTimeEntries, addTimeEntry, editTimeEntry, listTimeEntries } from '@/lib/time';
 
 const timestamp = z.iso.datetime({ offset: true });
 const fields = {
@@ -54,6 +54,19 @@ export function registerTimeTools(server: McpServer) {
     }
     const entry = await addTimeEntry(args);
     return result({ entry: serializeEntry(entry) });
+  }));
+
+  server.registerTool('add_time_entries', {
+    description: 'Log 1–500 activities in one batch. Give each activity its own start and end timestamps with time zone offsets, a description, and a reusable tag. The batch is saved together.',
+    annotations: { destructiveHint: false, idempotentHint: false },
+    inputSchema: { entries: z.array(z.object(fields)).min(1).max(500) },
+  }, withDatabase(async ({ entries }) => {
+    const invalidIndex = entries.findIndex(({ startAt, endAt }) => Date.parse(startAt) >= Date.parse(endAt));
+    if (invalidIndex !== -1) {
+      return toolError(`Entry ${invalidIndex + 1}: the end time must come after the start time.`);
+    }
+    const saved = await addTimeEntries(entries);
+    return result({ entries: saved.map(serializeEntry) });
   }));
 
   server.registerTool('list_time_entries', {

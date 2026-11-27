@@ -3,15 +3,11 @@ import { z } from 'zod';
 import { getErrorCode } from '@/lib/db';
 import { listTimeEntriesInRange, listTagTotals } from '@/lib/time';
 import DashboardNav from '../dashboard-nav';
-import EditEntry from './edit-entry';
 
 export const dynamic = 'force-dynamic';
 
 const zone = 'Asia/Kolkata';
 const localDate = new Intl.DateTimeFormat('sv-SE', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' });
-const localTime = new Intl.DateTimeFormat('sv-SE', {
-  timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3, hourCycle: 'h23',
-});
 const clock = new Intl.DateTimeFormat('en-IN', { timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const dateLabel = new Intl.DateTimeFormat('en-IN', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' });
 const hours = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 });
@@ -24,10 +20,6 @@ function shiftDate(date: string, days: number) {
 
 function url(date: string, view: 'day' | 'week') {
   return `/time-audit?date=${date}&view=${view}`;
-}
-
-function inputTime(date: Date) {
-  return `${localDate.format(date)}T${localTime.format(date).replace(',', '.')}`;
 }
 
 async function Calendar({ dates, until, today }: { dates: string[]; until: string; today: string }) {
@@ -60,8 +52,6 @@ async function Calendar({ dates, until, today }: { dates: string[]; until: strin
                       <small>{startAt < start ? '00:00' : clock.format(startAt)} – {endAt >= end ? '24:00' : clock.format(endAt)}</small>
                       <strong>{activity}</strong>
                       <span className="entry-count">{tag}</span>
-                      <EditEntry key={JSON.stringify([startAt, endAt, activity, tag])}
-                        id={id} startAt={inputTime(startAt)} endAt={inputTime(endAt)} activity={activity} tag={tag} />
                     </li>
                   ))}
                 </ul>

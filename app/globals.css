@@ -127,7 +127,7 @@ td:nth-child(2) { font-weight: 800; font-variant-numeric: tabular-nums; }
 
 .audit-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .audit-controls form { display: flex; gap: 6px; align-items: center; }
-.audit-controls a, .audit-controls button, .audit-edit button { border: 1px solid var(--ink); border-radius: 5px; padding: 6px 9px; background: #fff9eb; color: var(--ink); font-size: 13px; font-weight: 800; }
+.audit-controls a, .audit-controls button { border: 1px solid var(--ink); border-radius: 5px; padding: 6px 9px; background: #fff9eb; color: var(--ink); font-size: 13px; font-weight: 800; }
 .audit-controls a[aria-current] { background: var(--ink); color: var(--paper); }
 .audit-scroll { margin-top: 14px; overflow-x: auto; }
 .audit-calendar { display: grid; border: 1px solid #c9c2ad; border-radius: 6px; }
@@ -140,9 +140,4 @@ td:nth-child(2) { font-weight: 800; font-variant-numeric: tabular-nums; }
 .audit-day ul { list-style: none; margin: 0; padding: 8px; display: grid; gap: 8px; }
 .audit-entry { display: grid; justify-items: start; gap: 5px; padding: 8px; border: 1px solid #c9c2ad; border-left: 4px solid var(--blue); border-radius: 5px; background: var(--paper); overflow-wrap: anywhere; }
 .audit-entry .entry-count { white-space: normal; }
-.audit-edit { width: 100%; max-width: 320px; font-size: 13px; }
-.audit-edit summary { width: max-content; cursor: pointer; font-weight: 800; }
-.audit-edit form, .audit-edit label { display: grid; gap: 5px; }
-.audit-edit fieldset { display: grid; gap: 5px; min-width: 0; margin: 0; padding: 0; border: 0; }
-.audit-edit form { margin-top: 8px; }
-.audit-edit input, .audit-controls input { min-width: 0; max-width: 100%; color: var(--ink); font: inherit; }
+.audit-controls input { min-width: 0; max-width: 100%; color: var(--ink); font: inherit; }
